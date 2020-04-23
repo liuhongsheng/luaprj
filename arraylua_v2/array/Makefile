@@ -64,6 +64,7 @@ $(OBJECTS):%.o:%.c
 clean:
 	$(RM) $(TARGET)
 	$(RM) $(OBJECTS)
+	$(RM) $(DESTDIR)$(TARGET)
 
 
 install:

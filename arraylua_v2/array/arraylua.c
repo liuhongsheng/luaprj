@@ -127,14 +127,25 @@ static int isEmpty(lua_State *L) {
   return 1;
 }
 
-static const struct luaL_reg arraylib[] = {
-    {"new", newArray},     {"set", setArray},         {"get", getArray},
-    {"size", getSize},     {"capacity", getCapacity}, {"delete", deleteVal},
-    {"insert", insertVal}, {"empty", isEmpty},        {NULL, NULL}};
+static const struct luaL_reg arraylib_f[] = {{"new", newArray}, {NULL, NULL}};
 
-//luaopen_xxx, xxx和require后面的虚拟模块名必须一致
+static const struct luaL_reg arraylib_m[] = {
+    {"set", setArray},         {"get", getArray},     {"size", getSize},
+    {"capacity", getCapacity}, {"delete", deleteVal}, {"insert", insertVal},
+    {"empty", isEmpty},        {NULL, NULL}};
+
+// luaopen_xxx, xxx和require后面的虚拟模块名必须一致
 int luaopen_array(lua_State *L) {
-  luaL_newmetatable(L, "LuaBook.array");
-  luaL_openlib(L, "array", arraylib, 0);
+  /*以面向对象的方式调用方法*/
+  luaL_newmetatable(L, "LuaBook.array"); /*create new metatable*/
+  lua_pushstring(L, "__index");
+  lua_pushvalue(L, -2); /* pushes the metatable */
+  lua_settable(L, -3);  /* metatable.__index = metatable */
+
+  /*第一次调用luaL_openlib，当第一个函数为NULL时，会将栈中低于upvalues值的下一个位置的表作为create
+    table,并将方法打包 类似于metatable = {"set"=setArray， ....}
+  */
+  luaL_openlib(L, NULL, arraylib_m, 0);
+  luaL_openlib(L, "array", arraylib_f, 0);/*create packed table array = {"new" = newArray}*/
   return 1;
 }
