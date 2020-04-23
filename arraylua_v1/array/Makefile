@@ -1,4 +1,4 @@
-TARGET = libarraylua.so
+TARGET = array.so 
 
 # 定义编译参数
 CC = gcc
@@ -10,7 +10,7 @@ LDFLAGS = -Wl,-R /usr/local/lib
 
 #定义命令参数
 RM := rm -fr
-CP := cp -r
+CP := cp -fr
 
 # 定义目录
 DESTDIR := ../bin/
@@ -18,13 +18,23 @@ DESTDIR := ../bin/
 # 定义子目录
 SUB_DIR := 
 
-PWD := $(shell pwd)
+#定义bin目录
 BIN := ../bin
+
+#获取当前目录
+PWD := $(shell pwd)
+
+#获取源文件
 SOURCES = $(wildcard $(PWD)/*.c)
+
+#获取obj文件【变量替换】
 OBJECTS = $(SOURCES:.c=.o)
 
-#定义源文件搜索目录
+#定义源文件搜索路径
 vpath %.c = $(PWD)/
+
+#定义头文件搜索路径
+vpath %.h = $(PWD)/
 
 #定义头文件搜索路径
 INCLUDES += -I. \
@@ -46,8 +56,9 @@ $(TARGET):$(OBJECTS)
 	$(CC) $(OBJECTS) $(SHARED) -o $(TARGET)
 
 
+#静态模式
 $(OBJECTS):%.o:%.c
-	$(CC) -c $(CFLAGS) $(INCLUDES) $(LDFLAGS) $(LIBDIRS) $(LIBS) $(SHARED) $< -o $@
+	$(CC) -c $(CFLAGS) $(LDFLAGS) $(LIBDIRS) $(LIBS) $(SHARED) $(INCLUDES) $< -o $@
 
 
 clean:
@@ -57,3 +68,5 @@ clean:
 
 install:
 	$(CP) $(TARGET) $(DESTDIR)$(TARGET)
+	$(RM) $(TARGET)
+	$(RM) $(OBJECTS)

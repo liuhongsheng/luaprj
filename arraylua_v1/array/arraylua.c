@@ -99,11 +99,11 @@ static int insertVal(lua_State *L) {
     luaL_error(L, "array is full, size %d, capacity %d", a->size, a->capacity);
   }
 
-  for (int i = a->size - 1; i >= index; i--) {
+  for (int i = a->size - 1; i >= index - 1; i--) {
     a->values[i + 1] = a->values[i];
   }
 
-  a->values[index] = value;
+  a->values[index - 1] = value;
   a->size++;
   lua_pushnumber(L, value); /*返回被插入的值*/
 
@@ -121,11 +121,12 @@ static int isEmpty(lua_State *L) {
   return 1;
 }
 
-static const struct luaL_reg arraylib[] = {{"new", newArray},
-                                           {"set", setArray},
-                                           {"get", getArray},
-                                           {"size", getSize},
-                                           {NULL, NULL}};
+static const struct luaL_reg arraylib[] = {
+    {"new", newArray},     {"set", setArray},         {"get", getArray},
+    {"size", getSize},     {"capacity", getCapacity}, {"delete", deleteVal},
+    {"insert", insertVal}, {"empty", isEmpty},        {NULL, NULL}};
+
+//luaopen_xxx, xxx和require后面的虚拟模块名必须一致
 int luaopen_array(lua_State *L) {
   luaL_openlib(L, "array", arraylib, 0);
   return 1;
